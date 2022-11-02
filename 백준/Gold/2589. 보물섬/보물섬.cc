@@ -5,7 +5,6 @@ using namespace std;
 
 int R, C, ans = 0;
 vector<pair<int, int>> start;
-char tre_map[50][50];
 int visited[50][50];
 int visited2[50][50];
 
@@ -45,7 +44,6 @@ int main() {
         for (int c = 0; c < C; c++) {
             char treasure;
             cin >> treasure;
-            tre_map[r][c] = treasure;
             if (treasure == 'L') {
                 start.emplace_back(make_pair(r, c));
                 visited[r][c] = 1;

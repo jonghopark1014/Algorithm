@@ -1,5 +1,4 @@
 #include<iostream>
-#include<bits/stdc++.h>
 
 using namespace std;
 
@@ -8,6 +7,9 @@ int now = 0, cnt = 0;
 
 
 int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
     cin >> N >> K;
     int arr[N], arr2[N];
     for (int i = 0; i < N; i++) {
@@ -30,27 +32,15 @@ int main() {
                 } else {
                     now += 1;
                 }
-            }
-            else {
+            } else {
                 now += 1;
             }
         }
         arr2[now] = cnt;
-    }
-    for (int j = 1; j < N + 1; j++) {
-        if (j < N) {
-            for (int k = 0; k < N; k++) {
-                if (j == arr2[k]) {
-                    cout << arr[k] << ',' << ' ';
-                }
-            }
-        }
-        else {
-            for (int k = 0; k < N; k++) {
-                if (j == arr2[k]) {
-                    cout << arr[k] << '>';
-                }
-            }
+        if (cnt < N) {
+            cout << arr[now] << ',' << ' ';
+        } else {
+            cout << arr[now] << '>';
         }
     }
     return 0;

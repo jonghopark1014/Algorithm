@@ -1,28 +1,26 @@
-#include<iostream>
-#include<bits/stdc++.h>
+#include <iostream>
 
 using namespace std;
 
+int arr[202];
+
 int main() {
-    ios_base :: sync_with_stdio(false);
+    ios::sync_with_stdio(0);
     cin.tie(0);
-    cout.tie(0);
-    int n, ans = 0;
-    int arr[n];
-    cin >> n;
-    for (int i = 0; i < n; i++) {
+    int len;
+
+    cin >> len;
+
+    for (int i = 0; i < len; i++) {
         int num;
         cin >> num;
-        arr[i] = num;
-    }
-    int target = 0;
-    cin >> target;
-    for (int j = 0; j < n; j++) {
-        if (arr[j] == target) {
-            ans += 1;
-        }
+        arr[num + 100] += 1;
     }
 
-    cout << ans;
+    int target;
+    cin >> target;
+
+    cout << arr[target + 100];
+
     return 0;
 }

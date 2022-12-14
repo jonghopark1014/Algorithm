@@ -21,7 +21,7 @@ int main() {
     cin >> target;
 
     for (int i = 0; i < len; i++) {
-        if (target - arr[i] < 100000 && target - arr[i] > 0) {
+        if (target - arr[i] <= 1000000 && target - arr[i] > 0) {
             if (num_arr[target - arr[i]] == 1) {
                 res++;
             }

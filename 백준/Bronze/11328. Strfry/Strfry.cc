@@ -1,52 +1,44 @@
 #include <iostream>
-#include <bits/stdc++.h>
 
 using namespace std;
 
+int cnt, arr[26];
 
 int main() {
-    ios_base :: sync_with_stdio(false);
+    ios::sync_with_stdio(0);
     cin.tie(0);
-    cout.tie(0);
-    int N;
-    cin >> N;
-    string alphabet;
-    alphabet = "abcdefghijklmnopqrstuvwxyz";
-    for (int i = 0; i < N; i++) {
-        int alphaA[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int alphaB[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        string A, B;
-        cin >> A;
-        cin >> B;
-        for (int k = 0; k < A.length(); k++) {
-            for (int j = 0; j < 26; j++) {
-                if (alphabet[j] == A[k]) {
-                    alphaA[j] += 1;
-                }
-            }
-        }
-        for (int l = 0; l < B.length(); l++) {
-            for (int j = 0; j < 26; j++) {
-                if (alphabet[j] == B[l]) {
-                    alphaB[j] += 1;
-                }
-            }
-        }
-        bool ans;
-        ans = true;
-        for (int m = 0; m < 26; m++) {
-            if (alphaA[m] != alphaB[m]) {
-                ans = false;
-                break;
-            }
-        }
-        if (ans) {
-            cout << "Possible" << endl;
+
+    cin >> cnt;
+    
+    for (int i = 0; i < cnt; i++) {
+        string str1, str2;
+        cin >> str1 >> str2;
+        int tf = 1;
+        if (str1.length() != str2.length()) {
+            tf = 0;
         }
         else {
-            cout << "Impossible" << endl;
+            for (int j = 0; j < str1.length(); j++) {
+                arr[str1[j] - 'a'] += 1;
+            }
+    
+            for (int k = 0; k < str2.length(); k++) {
+                if (arr[str2[k] - 'a'] == 0) {
+                    tf = 0;
+                    break;
+                }
+                else {
+                    arr[str2[k] - 'a'] -= 1;
+                }
+            }
+        }
+        if (tf) {
+            cout << "Possible" << '\n';
+            fill(arr, arr+26, 0);
+        }
+        else {
+            cout << "Impossible" << '\n';
+            fill(arr, arr+26, 0);
         }
     }
-
-    return 0;
 }

@@ -1,43 +1,32 @@
-#include<iostream>
-#include<bits/stdc++.h>
+#include <iostream>
 
 using namespace std;
 
+int len, target, num_arr[1000001], res;
+
 int main() {
-    ios_base :: sync_with_stdio(false);
+    ios::sync_with_stdio(0);
     cin.tie(0);
-    cout.tie(0);
-    long n;
-    cin >> n;
-    int arr[n];
-    for (int i=0; i < n; i++) {
-        long Num;
-        cin >> Num;
-        arr[i] = Num;
+
+    cin >> len;
+    int arr[len];
+
+    for (int i = 0; i < len; i++) {
+        int num;
+        cin >> num;
+        arr[i] = num;
+        num_arr[num] = 1;
     }
-    sort(arr, arr + n);
-    long target;
-    long ans = 0;
+
     cin >> target;
-    long first = 0;
-    long last = n - 1;
-    while (true) {
-        if (first >= last) {
-            break;
-        }
-        else {
-            if (arr[first] + arr[last] == target) {
-                ans += 1;
-                first += 1;
-            }
-            else if (arr[first] + arr[last] > target) {
-                last -= 1;
-            }
-            else {
-                first += 1;
+
+    for (int i = 0; i < len; i++) {
+        if (target - arr[i] < 100000 && target - arr[i] > 0) {
+            if (num_arr[target - arr[i]] == 1) {
+                res++;
             }
         }
     }
-    cout << ans;
+    cout << res / 2;
     return 0;
 }

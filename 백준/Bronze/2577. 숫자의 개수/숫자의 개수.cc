@@ -1,52 +1,26 @@
-#include<iostream>
-#include<bits/stdc++.h>
-
+#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
-int Num[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+int arr[10];
 
 int main() {
-    int A, B, C, multi;
-    cin >> A;
-    cin >> B;
-    cin >> C;
-    multi = A * B * C;
-    string stM;
-    stM = to_string(multi);
-    for (int i = 0; i < stM.length(); i++) {
-        if (stM[i] == '0') {
-            Num[0] += 1;
-        }
-        else if (stM[i] == '1') {
-            Num[1] += 1;
-        }
-        else if (stM[i] == '2') {
-            Num[2] += 1;
-        }
-        else if (stM[i] == '3') {
-            Num[3] += 1;
-        }
-        else if (stM[i] == '4') {
-            Num[4] += 1;
-        }
-        else if (stM[i] == '5') {
-            Num[5] += 1;
-        }
-        else if (stM[i] == '6') {
-            Num[6] += 1;
-        }
-        else if (stM[i] == '7') {
-            Num[7] += 1;
-        }
-        else if (stM[i] == '8') {
-            Num[8] += 1;
-        }
-        else if (stM[i] == '9') {
-            Num[9] += 1;
-        }
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    int a, b, c;
+    cin >> a >> b >> c;
+
+    int res = a * b * c;
+    while (res > 0) {
+        arr[res % 10] += 1;
+        res /= 10;
     }
-    for (int j = 0; j < 10; j++) {
-        cout << Num[j] << endl;
+
+    for (int i = 0; i < 10; i++) {
+        cout << arr[i] << '\n';
     }
+
     return 0;
 }
+

@@ -126,6 +126,9 @@ void turn_off(vector<vector<pair<int, int>>> &shark_vec, vector<vector<pair<int,
 }
 
 int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
     cin >> N >> M >> K;
 
     // shark_first = 초기 방향값 넣기 위한 vector

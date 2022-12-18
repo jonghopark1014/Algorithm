@@ -1,196 +1,183 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
-int N, M, K;
-int dr[5] = {0, -1, 1, 0, 0}, dc[5] = {0, 0, 0, -1, 1};
+int N,M, k;
+int arr[22][22];
+int tmp[22][22];
+//int shark_direction[401];
+int shark_priority[1000][5][5];
 
-void smell(vector<vector<pair<int, int>>> &smell_vec, vector<vector<pair<int, int>>> &shark_vec) {
-    for (int r = 0; r < N; r++) {
-        for (int c = 0; c < N; c++) {
-            if (shark_vec[r][c].first) {
-                smell_vec[r][c].first = shark_vec[r][c].first;
-                smell_vec[r][c].second = K;
-            }
-        }
-    }
-}
+int smell_remain[22][22];               // 냄새가 남아있는 시간
+int smell_number[22][22];               // 특정 상어의 냄새
 
-void move(vector<vector<pair<int, int>>> &shark_vec, vector<vector<pair<int, int>>> &smell_vec, vector<pair<int, int>> &shark_location, vector<vector<vector<int>>> &shark_dir) {
-    for (int i = 1; i < M + 1; i++) {
-        int r = shark_location[i].first;
-        if (r == 99) {
-            continue;
-        }
-        int c = shark_location[i].second;
-        int dir = shark_vec[r][c].second;
+int dr[] = {0,-1,1,0,0};
+int dc[] = {0,0,0,-1,1};
 
-        vector<vector<int>> my_smell_location(4, vector<int>(3, 0));
-        int try_cnt = 0;
-        int tmp_value = -1;
 
-        for (int j = 1; j < 5; j++){
-            int new_dir = shark_dir[i][dir][j];
-            int r2 = r + dr[new_dir];
-            int c2 = c + dc[new_dir];
-            if (0 <= r2 && r2 < N && 0 <= c2 && c2 < N) {
-                if (smell_vec[r2][c2].first != 0) {
-                    if (smell_vec[r2][c2].first == i && tmp_value == -1) {
-                        my_smell_location[try_cnt][0] = r2;
-                        my_smell_location[try_cnt][1] = c2;
-                        my_smell_location[try_cnt][2] = new_dir;
-                        tmp_value = try_cnt;
-                    }
-                    try_cnt++;
+void move_shark(int r, int c, int *shark_direction) { // 항상 방향은 우선순위를 가진 방향 기준임
+
+    int num = arr[r][c];                // 상어 번호
+    int dir = shark_direction[num];     // 상어 현재 방향
+
+    // 인접한 곳 중에서 아무 냄새가 없는 경우
+    for (int i = 1; i <= 4; i++){
+        int pri_d = shark_priority[num][dir][i]; // 상어 우선순위 방향
+        int nr = r + dr[pri_d];
+        int nc = c + dc[pri_d];
+
+        if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+            if (smell_remain[nr][nc] == 0){
+                // 상어가 움직이는 공간에 값이 비어있으면 상어 그대로 두기, 아니면 작은 상어만 살아남기
+                if (tmp[nr][nc] == 0) {
+                    // 상어의 위치 이동
+                    tmp[r][c] = 0;
+                    tmp[nr][nc] = num;
+                    shark_direction[num] = pri_d;           // 이동한 방향이 상어의 다음 방향이 됨.
+                    return;
                 }
+                    // 비어있지 않은 경우
                 else {
-                    if (shark_vec[r2][c2].first != 0) {
-                        if (shark_vec[r2][c2].first > i) {
-                            int tmp_shark = shark_vec[r2][c2].first;
-                            shark_location[tmp_shark].first = 99;
-                            shark_location[tmp_shark].second = 99;
-                            shark_vec[r2][c2].first = i;
-                            shark_vec[r2][c2].second = new_dir;
-                        }
-                        else {
-                            shark_location[i].first = 99;
-                            shark_location[i].second = 99;
-                        }
+                    if (num < tmp[nr][nc]){
+                        // 상어의 위치 이동
+                        tmp[r][c] = 0;
+                        tmp[nr][nc] = num;
+                        shark_direction[num] = pri_d;           // 이동한 방향이 상어의 다음 방향이 됨.
+                        return;
                     }
-                    else {
-                        shark_vec[r2][c2].first = i;
-                        shark_vec[r2][c2].second = new_dir;
-                        shark_location[i].first = r2;
-                        shark_location[i].second = c2;
-                    }
-                    shark_vec[r][c].first = 0;
-                    shark_vec[r][c].second = 0;
-                    break;
                 }
+                return;                                 // return 위치가 여기인 이유 : 빈 공간으로 어찌되었던 이동했으니까.
             }
-            else {
-                try_cnt++;
-            }
-        }
-
-        if (try_cnt == 4) {
-            int r3 = my_smell_location[tmp_value][0];
-            int c3 = my_smell_location[tmp_value][1];
-            int dir3 = my_smell_location[tmp_value][2];
-            shark_vec[r][c].first = 0;
-            shark_vec[r][c].second = 0;
-            shark_vec[r3][c3].first = i;
-            shark_vec[r3][c3].second = dir3;
-
-            shark_location[i].first = r3;
-            shark_location[i].second = c3;
         }
     }
+
+    // 냄새가 나는 곳으로 이동
+    for (int i = 1; i <= 4; i++) {
+        int pri_d = shark_priority[num][dir][i]; // 상어 우선순위 방향
+        int nr = r + dr[pri_d];
+        int nc = c + dc[pri_d];
+        if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
+            if (smell_number[nr][nc] == num) {
+                // 상어의 위치 이동
+                tmp[r][c] = 0;
+                tmp[nr][nc] = num;
+                shark_direction[num] = pri_d;           // 이동한 방향이 상어의 다음 방향이 됨.
+                return;
+            }
+        }
+    }
+
 }
 
-void check_shark(vector<vector<pair<int, int>>> &shark_vec, int &check) {
-    int shark_cnt = 0;
+void smell() {
+    for (int i=0; i<N; i++){
+        for(int j=0; j<N; j++){
+            // 상어의 위치에는 k로 냄새를 남김
+            if (arr[i][j] != 0) {
+                smell_remain[i][j] = k;
+                smell_number[i][j] = arr[i][j];
+            }
+                // 기존에 남아있던 냄새는 -1 씩 감소
+            else if (smell_remain[i][j] > 0) {
+                smell_remain[i][j] -= 1;
+                if (smell_remain[i][j] == 0) {
+                    smell_number[i][j] = 0;
+                }
+            }
+        }
+    }
+
+}
+
+void move(int *shark_direction) {
+    // 방향에 맞게 상어 이동
+    for (int i=0; i<N; i++){
+        for(int j=0; j<N; j++){
+            if (arr[i][j] != 0) {
+                move_shark(i,j, shark_direction);
+            }
+        }
+    }
+    // 임시로 저장된 상어 값을 다시 원래 배열로 복귀
+    for (int i=0; i<N; i++){
+        for(int j=0; j<N; j++){
+            arr[i][j] = tmp[i][j];
+        }
+    }
+
+    // 이동 후 냄새를 좌표에 남김.
+    smell();
+
+    //tmp 초기화
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
-            if (shark_vec[r][c].first != 0) {
-                shark_cnt++;
-                if (shark_cnt > 1) {
-                    break;
-                }
-            }
+            tmp[r][c] = 0;
         }
-        if (shark_cnt > 1) {
-            break;
-        }
-    }
-    if (shark_cnt == 1) {
-        check = 1;
     }
 }
 
-void turn_off(vector<vector<pair<int, int>>> &shark_vec, vector<vector<pair<int, int>>> &smell_vec) {
-    for (int r = 0; r < N; r++) {
-        for (int c = 0; c < N; c++) {
-            if (!shark_vec[r][c].first && smell_vec[r][c].second) {
-                if (smell_vec[r][c].second == 1) {
-                    smell_vec[r][c].second = 0;
-                    smell_vec[r][c].first = 0;
-                }
-                else {
-                    smell_vec[r][c].second--;
-                }
-            }
-        }
-    }
-}
 
 int main() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    
-    cin >> N >> M >> K;
+    cin >> N >> M >> k;
+    // 초기값 설정 : 상어 위치 선정(배열)
+    for (int i = 0; i < N; i++) {
+        for (int j=0; j < N; j++) {
+            cin >> arr[i][j];
 
-    // shark_first = 초기 방향값 넣기 위한 vector
-    // shark_vec 상어 테이블, smell_vec 냄새 테이블
-    // shark_dir 상어 방향 우선 순위
-    vector<pair<int, int>> shark_location(M + 1, {0, 0});
-    vector<vector<pair<int, int>>> shark_vec(N, vector<pair<int, int>>(N, {0, 0}));
-    vector<vector<pair<int, int>>> smell_vec(N, vector<pair<int, int>>(N, {0, 0}));
-    vector<vector<vector<int>>> shark_dir(M + 1, vector<vector<int>>(5, vector<int>(5, 0)));
-
-    int check = 0;
-
-    // 테이블 정보 가져 오기
-    for (int r = 0; r < N; r++) {
-        for (int c = 0; c < N; c++) {
-            // 상어 정보 넣기(상어 번호, 이동 방향)
-            int num;
-            cin >> num;
-            if (num) {
-                shark_location[num].first = r;
-                shark_location[num].second = c;
+        }
+    }
+    // 초기값 설정 :  냄새
+    for (int i=0; i<N; i++) {
+        for (int j = 0; j < N; j++) {
+            // 상어의 위치에는 k로 냄새를 남김
+            if (arr[i][j] != 0) {
+                smell_remain[i][j] = k;
+                smell_number[i][j] = arr[i][j];
             }
-            shark_vec[r][c].first = num;
         }
-    }
-    // 상어 초기 방향 설정
-    for (int i = 1; i < M + 1; i++) {
-        int dir;
-        cin >> dir;
-        shark_vec[shark_location[i].first][shark_location[i].second].second = dir;
     }
 
-    // 상어 별 방향 우선 순위 설정
-    for (int i = 1; i < M + 1; i++) {
-        for (int j = 1; j < 5; j++) {
-            vector<int> arr(4);
-            cin >> arr[0] >> arr[1] >> arr[2] >> arr[3];
-            shark_dir[i][j][1] = arr[0];
-            shark_dir[i][j][2] = arr[1];
-            shark_dir[i][j][3] = arr[2];
-            shark_dir[i][j][4] = arr[3];
+    // 상어의 초기 방향 입력
+    int shark_direction[1000];
+
+    for (int i=1; i <=M; i++){
+        cin >> shark_direction[i];
+    }
+    // 상어 번호별 방향 우선 순위 선정
+    for (int i=1; i<=M; i++) {
+        for (int j=1; j<=4; j++) {
+            for (int l=1; l<=4; l++) {
+                cin >> shark_priority[i][j][l];
+            }
         }
     }
-    int cnt = 0;
 
-    while (cnt < 1000) {
-        cnt++;
-        if (cnt == 1) {
-            smell(smell_vec, shark_vec);
+    // 이동
+    int cnt = 1;
+    while (cnt <= 1000) {
+        // 상어 이동
+        move(shark_direction);
+        // 상어 1마리 남았는지 체크
+        int chk = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (arr[i][j] != 0) {
+                    chk++;
+                }
+            }
         }
-        move(shark_vec, smell_vec, shark_location, shark_dir);
-        check_shark(shark_vec, check);
-        if (check) {
+
+        // 종료조건
+        if (chk == 1) {
+            cout << cnt;
             break;
         }
-        turn_off(shark_vec, smell_vec);
-        smell(smell_vec,shark_vec);
-    }
-    if (!check) {
-        cnt = -1;
-    }
-    cout << cnt;
+        cnt++;
 
-    return 0;
+
+    }
+
+    if (cnt == 1001) {
+        cout << -1;
+    }
 }

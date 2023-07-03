@@ -1,54 +1,66 @@
 import sys
 from collections import deque
 
-dr = [-1, 1, 0, 0]
-dc = [0, 0, -1, 1]
+read_input = sys.stdin.readline
 
-y, x = map(int, sys.stdin.readline().split())
-map = [list(map(int, sys.stdin.readline().split())) for _ in range(y)]
+# setting
+air = deque()
+dis_cheese = deque()
+dr = [0, 0, -1, 1]
+dc = [1, -1, 0, 0]
 
-def bfs(r, c):
-    global visited, amount
-    Q = deque()
-    Q.append([r,c])
+#input
+R, C = map(int, read_input().split())
+arr = []
+time = 0
+cheeses = 0
+for r in range(R):
+    tmp = list(map(int, read_input().split()))
+    for c in range(C):
+        if tmp[c]:
+            cheeses += 1
+    arr.append(tmp)
 
-    while Q:
-        r1, c1 = Q.popleft()
+pre_cheese = cheeses
+
+# dis_cheese : 사라질 치즈 deque / now_cheese : 잔여 치즈
+## now_cheese가 있다면 dr, dc 확인 후 하나라도 0이면 dis_cheese에 추가
+## dis_cheese pop 하면서 해당 지점 0으로 교체
+## 교체 후 시간 올리고 다시 진행
+
+while cheeses:
+    visited = [[0 for c in range(C)] for r in range(R)]
+
+    # 공기에서 체크
+    air = deque()
+    air.append([0, 0])
+    visited[0][0] = 1
+    while len(air):
+        air_info = air.popleft()
+        air_r, air_c = air_info[0], air_info[1]
         for i in range(4):
-            r2 = r1 + dr[i]
-            c2 = c1 + dc[i]
-            if 0 <= r2 < y and 0 <= c2 < x and not visited[r2][c2]:
-                if map[r2][c2] == 1:
-                    melt_xy.append([r2, c2])
-                    amount += 1
-                    visited[r2][c2] = True
-                elif map[r2][c2] == 0:
-                    Q.append([r2,c2])
-                    visited[r2][c2] = True
+            new_r = air_r + dr[i]
+            new_c = air_c + dc[i]
+            if 0 <= new_r < R and 0 <= new_c < C and not visited[new_r][new_c]:
+                if not arr[new_r][new_c]:
+                    air.append([new_r, new_c])
+                    visited[new_r][new_c] = 1
+                else:
+                    dis_cheese.append([new_r, new_c])
+                    visited[new_r][new_c] = 1
 
+    # 사라지기
+    while len(dis_cheese):
+        cheese = dis_cheese.popleft()
+        cheese_r, cheese_c = cheese[0], cheese[1]
+        arr[cheese_r][cheese_c] = 0
+        cheeses -= 1
 
-for r in range(y):
-    for c in range(x):
-        if map[r][c] == 0:
-            a, b = r, c
-            break
-        break
-
-cnt = 0
-melt_amount = []
-while True:
-    cnt += 1
-    visited = [[False] * x for _ in range(y)]
-    melt_xy = []
-    amount = 0
-    bfs(a, b)
-    if len(melt_xy) == 0:
+    time += 1
+    if not cheeses:
         break
     else:
-        for i in melt_xy:
-            map[i[0]][i[1]] = 0
-    melt_amount.append(amount)
+        pre_cheese = cheeses
 
-
-print(cnt -1)
-print(melt_amount[-1])
+print(time)
+print(pre_cheese)

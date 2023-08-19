@@ -3,74 +3,61 @@
 
 using namespace std;
 
-struct room {
-    int origin, next, val;
-};
+int N, M, ans, parent[200002];
 
-struct compare {
-    bool operator()(const room& r1, const room& r2) {
-        return r1.val > r2.val;
+struct line {
+    int start, end, len;
+
+    bool operator<(const line& l1) const {
+        return len > l1.len;
     }
 };
 
-int arr[200002], N, M;
-
-priority_queue<room, vector<room>, compare> pq;
-
-void input() {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    cin >> N >> M;
-    for (int i = 1; i <= N; i++) {
-        arr[i] = i;
-    }
-    for (int j = 0; j < M; j++) {
-        room tmp;
-        cin >> tmp.origin;
-        cin >> tmp.next;
-        cin >> tmp.val;
-        pq.push(tmp);
-    }
-    for (int k = 1; k <= N; k++) {
-        room tmp2;
-        tmp2.origin = k;
-        tmp2.next = N + 1;
-        cin >> tmp2.val;
-        pq.push(tmp2);
-    }
+int findRoot(int spot) {
+    if (parent[spot] == spot) return spot;
+    return parent[spot] = findRoot(parent[spot]);
 }
 
-int find_root(int a) {
-    if (arr[a] == a) return a;
-    return arr[a] = find_root(arr[a]);
-}
-
-void union_root(int a, int b) {
-    a = find_root(a);
-    b = find_root(b);
-    if (a != b) arr[b] = a;
-}
-
-void ps() {
-    int time = 0;
-    int cnt = 0;
-
-    while (cnt != N) {
-        room line = pq.top();
-        pq.pop();
-        if (find_root(line.origin) != find_root(line.next)) {
-            time += line.val;
-            cnt += 1;
-            union_root(line.origin, line.next);
-        }
-    }
-    cout << time;
+void unionRoot(int a, int b) {
+    if (a != b) parent[b] = a;
 }
 
 int main() {
-    input();
-    ps();
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cin >> N >> M;
 
+    priority_queue<line> pq;
+
+    for (int i = 0; i < M; i++) {
+        int start, end, len;
+        cin >> start >> end >> len;
+        line l = {start, end, len};
+        pq.push(l);
+    }
+
+    for (int i = 1; i <= N + 1; i++) {
+        parent[i] = i;
+        if (i == N + 1) continue;
+        int start = i;
+        int end = N + 1;
+        int len;
+        cin >> len;
+        line l = {start, end, len};
+        pq.push(l);
+    }
+
+    while (!pq.empty()) {
+        line l = pq.top();
+        pq.pop();
+        int start = findRoot(l.start);
+        int end = findRoot(l.end);
+        if (start != end) {
+            unionRoot(start, end);
+            ans += l.len;
+        }
+    }
+    cout << ans;
 
     return 0;
 }
